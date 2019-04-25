@@ -8,7 +8,6 @@ pygame.init()
 screen = pygame.display.set_mode((512, 412))
 COLOR_INACTIVE = pygame.Color('lightskyblue3')
 COLOR_ACTIVE = pygame.Color('dodgerblue2')
-FONT = pygame.font.Font(None, 32)
 
 
 def make_map_file(ll, z, l, spn=None):
@@ -67,8 +66,8 @@ def search_place(toponym_to_find):
     return (address_ll, spn)
 
 
-input_box = PygameTextBox(0, 0, 434, 28)
-btn = Button(434, 0, 78, 28)
+input_box = PygameTextBox(0, 0, 430, 28)
+btn = Button(600, 0, 78, 28)
 
 starting_point = [0, 0]
 zoom = 1
