@@ -67,6 +67,10 @@ class PygameTextBox:
         self.ip_image = pygame.image.load('inactive_post.png')
         self.post_image = self.ip_image
         self.post_rect = pygame.Rect(x + 5, y + 33, 28, 28)
+        self.ao_image = pygame.image.load('active_post.png')
+        self.io_image = pygame.image.load('inactive_post.png')
+        self.org_image = self.io_image
+        self.org_rect = pygame.Rect(x + 40, y + 33, 28, 28)
         self.active = False
         self.ready = False
         self.drop = False
@@ -87,6 +91,10 @@ class PygameTextBox:
             self.post_image = self.ap_image
         else:
             self.post_image = self.ip_image
+        if self.org_rect.collidepoint(pygame.mouse.get_pos()):
+            self.org_image = self.ao_image
+        else:
+            self.org_image = self.io_image
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if self.lupa_rect.collidepoint(event.pos):
@@ -98,6 +106,8 @@ class PygameTextBox:
                     self.drop = True
                 elif self.post_rect.collidepoint(event.pos):
                     self.print_code = not self.print_code
+                elif self.org_rect.collidepoint(event.pos):
+                    self.print_org = not self.print_org
                 elif self.rect.collidepoint(event.pos):
                     self.active = True
                     self.color = self.color_active
@@ -182,6 +192,7 @@ class PygameTextBox:
         pygame.draw.line(screen, self.color, (259, 5), (259, 23), 2)
         screen.blit(self.cross_image, (self.cross_rect.x, self.cross_rect.y))
         screen.blit(self.post_image, (self.post_rect.x, self.post_rect.y))
+        screen.blit(self.org_image, (self.org_rect.x, self.org_rect.y))
         row = ''
         height = 0
         for word in self.info.split():

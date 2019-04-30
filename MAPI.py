@@ -72,8 +72,28 @@ def search_place(toponym_to_find):
     if 'postal_code' in toponym["metaDataProperty"]["GeocoderMetaData"]["Address"]:
         post_code = toponym["metaDataProperty"]["GeocoderMetaData"]["Address"]["postal_code"]
     else:
-        post_code = None
-    return (address_ll, z, info, post_code)
+        post_code = '-'
+    search_api_server = "https://search-maps.yandex.ru/v1/"
+    api_key = "dda3ddba-c9ea-4ead-9010-f43fbc15c6e3"
+    search_params = {
+        "apikey": api_key,
+        "type": "biz",
+        "lang": "ru_RU",
+        "ll": address_ll,
+        "spn": "0.00045,0.00045",
+        "rspn": "1"
+    }
+    response = requests.get(search_api_server, params=search_params)
+    if not response:
+        print("Ошибка выполнения запроса")
+        print("Http статус:", response.status_code, "(", response.reason, ")")
+        sys.exit(1)
+    json_response = response.json()
+    if len(json_response["features"]):
+        org = json_response["features"][0]["properties"]["CompanyMetaData"]["name"]
+    else:
+        org = '-'
+    return (address_ll, z, info, post_code, org)
 
 
 def click_search(pos, z):
@@ -148,6 +168,7 @@ while running:
                         input_box.add_info(result[1])
                         input_box.add_post_code(result[2])
                         input_box.add_org(result[3])
+                        input_box.found = True
                         event_check = True
             elif event.type == pygame.KEYDOWN:
                 event_check = True
@@ -186,9 +207,10 @@ while running:
                         starting_point, (512, 0), zoom)
     name = input_box.get_name()
     if name:
-        starting_point, zoom, info, post_code = search_place(name)
+        starting_point, zoom, info, post_code, org = search_place(name)
         input_box.add_info(info)
         input_box.add_post_code(post_code)
+        input_box.add_org(org)
         points = ','.join(list(map(str, starting_point))) + ',flag'
     if input_box.drop_check():
         event_check = True
