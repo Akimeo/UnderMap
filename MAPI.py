@@ -76,12 +76,11 @@ def search_place(toponym_to_find):
     return (address_ll, z, info, post_code)
 
 
-def click_search(pos, base, z):
+def click_search(pos, z):
     x, y = pos[0] - 300, pos[1]
     if x >= 0:
         point_x, point_y = jesus_christ(starting_point, (x - 256, y - 192), z)
         address_ll = '{},{}'.format(point_x, point_y)
-        # address_ll = '{},{}'.format(st_point_x, st_point_y)
         geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"
         geocoder_params = {"geocode": address_ll, "format": "json"}
         response = requests.get(geocoder_api_server, params=geocoder_params)
@@ -96,15 +95,34 @@ def click_search(pos, base, z):
         if 'postal_code' in toponym["metaDataProperty"]["GeocoderMetaData"]["Address"]:
             post_code = toponym["metaDataProperty"]["GeocoderMetaData"]["Address"]["postal_code"]
         else:
-            post_code = None
-        return (address_ll, info, post_code)
+            post_code = '-'
+        search_api_server = "https://search-maps.yandex.ru/v1/"
+        api_key = "dda3ddba-c9ea-4ead-9010-f43fbc15c6e3"
+        search_params = {
+            "apikey": api_key,
+            "type": "biz",
+            "lang": "ru_RU",
+            "ll": address_ll,
+            "spn": "0.00045,0.00045",
+            "rspn": "1"
+        }
+        response = requests.get(search_api_server, params=search_params)
+        if not response:
+            print("Ошибка выполнения запроса")
+            print("Http статус:", response.status_code, "(", response.reason, ")")
+            sys.exit(1)
+        json_response = response.json()
+        if len(json_response["features"]):
+            org = json_response["features"][0]["properties"]["CompanyMetaData"]["name"]
+        else:
+            org = '-'
+        return (address_ll, info, post_code, org)
 
 
 input_box = PygameTextBox(0, 0, 300, 28)
 # btn = Button(429, 0, 83, 28, input_box)
 
 starting_point = [0, 0]
-base_x = base_y = 0
 zoom = 1
 map_type = ["map"]
 points = None
@@ -123,14 +141,13 @@ while running:
         if input_box.is_not_active():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 3:
-                    result, info, post_code = click_search(
-                        pygame.mouse.get_pos(), (base_x, base_y), zoom)
+                    result = click_search(pygame.mouse.get_pos(), zoom)
                     if result:
-                        print(result)
-                        point = result
+                        point = result[0]
                         points = point + ',flag'
-                        input_box.add_info(info)
-                        input_box.add_post_code(post_code)
+                        input_box.add_info(result[1])
+                        input_box.add_post_code(result[2])
+                        input_box.add_org(result[3])
                         event_check = True
             elif event.type == pygame.KEYDOWN:
                 event_check = True

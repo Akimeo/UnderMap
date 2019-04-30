@@ -45,6 +45,7 @@ class PygameTextBox:
         self.vis_text = text
         self.info = ''
         self.post_code = '-'
+        self.org = ''
         self.rect = pygame.Rect(x, y, w, h)
         self.info_rect = pygame.Rect(x, y + 27, w, 357)
         self.color_inactive = (160, 160, 160)
@@ -70,6 +71,7 @@ class PygameTextBox:
         self.ready = False
         self.drop = False
         self.print_code = False
+        self.print_org = True
         self.found = False
 
     def update(self, events):
@@ -198,6 +200,11 @@ class PygameTextBox:
                 (295, self.y + 66 + 20 * height), 1)
             post_text = FONT.render('Почтовый код: ' + self.post_code, 1, self.color)
             screen.blit(post_text, (self.x + 5, self.y + 68 + 20 * height))
+        if self.found and self.print_org:
+            pygame.draw.line(screen, self.color, (5, self.y + 66 + 20 * height), 
+                (295, self.y + 66 + 20 * height), 1)
+            org_text = FONT.render('Ближайшая организация: ' + self.org, 1, self.color)
+            screen.blit(org_text, (self.x + 5, self.y + 68 + 20 * height))
         pygame.draw.rect(screen, self.color, self.info_rect, 1)
 
     def get_name(self):
@@ -218,10 +225,10 @@ class PygameTextBox:
         self.info = info
 
     def add_post_code(self, post_code):
-        if post_code:
-            self.post_code = post_code
-        else:
-            self.post_code = '-'
+        self.post_code = post_code
+
+    def add_org(self, org):
+        self.org = org
 
     def is_not_active(self):
         return not self.active
