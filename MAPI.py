@@ -2,7 +2,8 @@ import requests
 import pygame
 import sys
 import os
-from text_input import PygameTextBox, Button
+from text_input import PygameTextBox
+from god_squad import jesus_christ
 
 pygame.init()
 screen = pygame.display.set_mode((812, 384))
@@ -44,8 +45,10 @@ def make_map_file(ll, z, l, points):
 
 
 def make_z(toponym):
-    delta_x = float(toponym['boundedBy']['Envelope']['upperCorner'].split()[0]) - float(toponym['boundedBy']['Envelope']['lowerCorner'].split()[0])
-    delta_y = float(toponym['boundedBy']['Envelope']['upperCorner'].split()[1]) - float(toponym['boundedBy']['Envelope']['lowerCorner'].split()[1])
+    delta_x = float(toponym['boundedBy']['Envelope']['upperCorner'].split()[
+                    0]) - float(toponym['boundedBy']['Envelope']['lowerCorner'].split()[0])
+    delta_y = float(toponym['boundedBy']['Envelope']['upperCorner'].split()[
+                    1]) - float(toponym['boundedBy']['Envelope']['lowerCorner'].split()[1])
     z = 0
     for i in range(17):
         if delta_x < 360 / 2 ** (i) or delta_y < 170 / 2 ** (i):
@@ -72,15 +75,11 @@ def search_place(toponym_to_find):
         post_code = None
     return (address_ll, z, info, post_code)
 
-def click_search(pos, st_point, z):
+
+def click_search(pos, base, z):
     x, y = pos[0] - 300, pos[1]
-    print(pos[1])
     if x >= 0:
-        st_point_x = st_point[0] - 360 / 2 ** z
-        st_point_y = st_point[1] + 127.5 / 2 ** z
-        point_x = st_point_x + 720 / 2 ** z / 512 * x
-        point_y = st_point_y - 255 / 2 ** z / 384 * y
-        print(st_point_x, st_point_y)
+        point_x, point_y = jesus_christ(starting_point, (x - 256, y - 192), z)
         address_ll = '{},{}'.format(point_x, point_y)
         # address_ll = '{},{}'.format(st_point_x, st_point_y)
         geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"
@@ -88,7 +87,8 @@ def click_search(pos, st_point, z):
         response = requests.get(geocoder_api_server, params=geocoder_params)
         if not response:
             print("Ошибка выполнения запроса")
-            print("Http статус:", response.status_code, "(", response.reason, ")")
+            print("Http статус:", response.status_code,
+                  "(", response.reason, ")")
             sys.exit(1)
         json_response = response.json()
         toponym = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
@@ -99,10 +99,12 @@ def click_search(pos, st_point, z):
             post_code = None
         return (address_ll, info, post_code)
 
+
 input_box = PygameTextBox(0, 0, 300, 28)
 # btn = Button(429, 0, 83, 28, input_box)
 
 starting_point = [0, 0]
+base_x = base_y = 0
 zoom = 1
 map_type = ["map"]
 points = None
@@ -121,7 +123,8 @@ while running:
         if input_box.is_not_active():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 3:
-                    result, info, post_code = click_search(pygame.mouse.get_pos(), starting_point, zoom)
+                    result, info, post_code = click_search(
+                        pygame.mouse.get_pos(), (base_x, base_y), zoom)
                     if result:
                         print(result)
                         point = result
@@ -153,23 +156,17 @@ while running:
                     if zoom > 1:
                         zoom -= 1
                 elif event.key == pygame.K_UP:
-                    starting_point[1] += 255 / 2 ** zoom
-                    if starting_point[1] > 85:
-                        starting_point[1] = 85
-                    print(starting_point[1])
+                    starting_point = jesus_christ(
+                        starting_point, (0, -384), zoom)
                 elif event.key == pygame.K_DOWN:
-                    starting_point[1] -= 255 / 2 ** zoom
-                    if starting_point[1] < -85:
-                        starting_point[1] = -85
-                    print(starting_point[1])
+                    starting_point = jesus_christ(
+                        starting_point, (0, 384), zoom)
                 elif event.key == pygame.K_LEFT:
-                    starting_point[0] -= 720 / 2 ** zoom
-                    if starting_point[0] < -180:
-                        starting_point[0] += 360
+                    starting_point = jesus_christ(
+                        starting_point, (-512, 0), zoom)
                 elif event.key == pygame.K_RIGHT:
-                    starting_point[0] += 720 / 2 ** zoom
-                    if starting_point[0] > 180:
-                        starting_point[0] -= 360
+                    starting_point = jesus_christ(
+                        starting_point, (512, 0), zoom)
     name = input_box.get_name()
     if name:
         starting_point, zoom, info, post_code = search_place(name)
