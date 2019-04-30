@@ -65,10 +65,11 @@ class PygameTextBox:
         self.cross_rect = pygame.Rect(x + 264, y, 28, 28)
         self.ap_image = pygame.image.load('active_post.png')
         self.ip_image = pygame.image.load('inactive_post.png')
+        self.tp_image = pygame.image.load('toggled_post.png')
         self.post_image = self.ip_image
         self.post_rect = pygame.Rect(x + 5, y + 33, 28, 28)
-        self.ao_image = pygame.image.load('active_post.png')
-        self.io_image = pygame.image.load('inactive_post.png')
+        self.ao_image = pygame.image.load('active_org.png')
+        self.io_image = pygame.image.load('inactive_org.png')
         self.org_image = self.io_image
         self.org_rect = pygame.Rect(x + 40, y + 33, 28, 28)
         self.active = False
@@ -89,6 +90,8 @@ class PygameTextBox:
             self.cross_image = self.ic_image
         if self.post_rect.collidepoint(pygame.mouse.get_pos()):
             self.post_image = self.ap_image
+        elif self.print_code:
+            self.post_image = self.tp_image
         else:
             self.post_image = self.ip_image
         if self.org_rect.collidepoint(pygame.mouse.get_pos()):
@@ -212,10 +215,14 @@ class PygameTextBox:
             post_text = FONT.render('Почтовый код: ' + self.post_code, 1, self.color)
             screen.blit(post_text, (self.x + 5, self.y + 68 + 20 * height))
         if self.found and self.print_org:
-            pygame.draw.line(screen, self.color, (5, self.y + 66 + 20 * height), 
-                (295, self.y + 66 + 20 * height), 1)
+            if self.print_code:
+                temp = 25
+            else:
+                temp = 0
+            pygame.draw.line(screen, self.color, (5, self.y + 66 + temp + 20 * height), 
+                (295, self.y + 66 + temp + 20 * height), 1)
             org_text = FONT.render('Ближайшая организация: ' + self.org, 1, self.color)
-            screen.blit(org_text, (self.x + 5, self.y + 68 + 20 * height))
+            screen.blit(org_text, (self.x + 5, self.y + 68 + temp + 20 * height))
         pygame.draw.rect(screen, self.color, self.info_rect, 1)
 
     def get_name(self):

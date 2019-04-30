@@ -140,7 +140,6 @@ def click_search(pos, z):
 
 
 input_box = PygameTextBox(0, 0, 300, 28)
-# btn = Button(429, 0, 83, 28, input_box)
 
 starting_point = [0, 0]
 zoom = 1
@@ -157,7 +156,6 @@ while running:
         if event.type == pygame.QUIT:
             running = False
         input_box.update(events)
-        # btn.update(events)
         if input_box.is_not_active():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if event.button == 3:
@@ -223,7 +221,6 @@ while running:
             points)
     screen.fill((255, 255, 255))
     input_box.draw(screen)
-    # btn.draw(screen)
     screen.blit(pygame.image.load("map.png"), (300, 0))
     pygame.display.flip()
     clock.tick(FPS)
