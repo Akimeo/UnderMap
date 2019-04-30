@@ -129,7 +129,8 @@ def click_search(pos, z):
         response = requests.get(search_api_server, params=search_params)
         if not response:
             print("Ошибка выполнения запроса")
-            print("Http статус:", response.status_code, "(", response.reason, ")")
+            print("Http статус:", response.status_code,
+                  "(", response.reason, ")")
             sys.exit(1)
         json_response = response.json()
         if len(json_response["features"]):
@@ -167,6 +168,14 @@ while running:
                         input_box.add_post_code(result[2])
                         input_box.add_org(result[3])
                         input_box.found = True
+                        event_check = True
+                elif event.button == 4:
+                    if zoom < 17:
+                        zoom += 1
+                        event_check = True
+                elif event.button == 5:
+                    if zoom > 1:
+                        zoom -= 1
                         event_check = True
             elif event.type == pygame.KEYDOWN:
                 event_check = True

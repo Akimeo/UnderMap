@@ -1,38 +1,7 @@
 import pygame
 
 pygame.init()
-# FONT = pygame.font.Font("consola.ttf", 20)
 FONT = pygame.font.Font("UbuntuMono-R.ttf", 20)
-
-
-class Button:
-    def __init__(self, x, y, w, h, input_box, text='Искать'):
-        self.x = x
-        self.y = y
-        self.w = w
-        self.h = h
-        self.input_box = input_box
-        self.text = text
-        self.rect = pygame.Rect(x, y, w, h)
-        self.color_inactive = pygame.Color('gray')
-        self.color_active = (255, 204, 0)
-        self.color = self.color_inactive
-
-    def update(self, events):
-        if self.rect.collidepoint(pygame.mouse.get_pos()):
-            self.color = self.color_active
-        else:
-            self.color = self.color_inactive
-        for event in events:
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                if self.rect.collidepoint(event.pos):
-                    self.input_box.ready = True
-
-    def draw(self, screen):
-        text = FONT.render(self.text, 1, self.color)
-        screen.blit(text, (self.x + 12, self.y + 5))
-        pygame.draw.rect(screen, self.color,
-                         (self.x, self.y, self.w, self.h), 1)
 
 
 class PygameTextBox:
@@ -70,13 +39,14 @@ class PygameTextBox:
         self.post_rect = pygame.Rect(x + 5, y + 33, 28, 28)
         self.ao_image = pygame.image.load('active_org.png')
         self.io_image = pygame.image.load('inactive_org.png')
+        self.to_image = pygame.image.load('toggled_org.png')
         self.org_image = self.io_image
         self.org_rect = pygame.Rect(x + 40, y + 33, 28, 28)
         self.active = False
         self.ready = False
         self.drop = False
         self.print_code = False
-        self.print_org = True
+        self.print_org = False
         self.found = False
 
     def update(self, events):
@@ -96,6 +66,8 @@ class PygameTextBox:
             self.post_image = self.ip_image
         if self.org_rect.collidepoint(pygame.mouse.get_pos()):
             self.org_image = self.ao_image
+        elif self.print_org:
+            self.org_image = self.to_image
         else:
             self.org_image = self.io_image
         for event in events:
@@ -122,7 +94,10 @@ class PygameTextBox:
                     self.color = self.color_inactive
             if event.type == pygame.KEYDOWN:
                 if self.active:
-                    if event.key == pygame.K_RETURN:
+                    if event.key == pygame.K_ESCAPE:
+                        self.active = False
+                        self.color = self.color_inactive
+                    elif event.key == pygame.K_RETURN:
                         self.ready = True
                     elif event.key == pygame.K_BACKSPACE:
                         if self.cursor_pos == 0:
@@ -209,20 +184,33 @@ class PygameTextBox:
             info_text = FONT.render(row, 1, self.color)
             screen.blit(info_text, (self.x + 5, self.y + 63 + 20 * height))
             height += 1
+        row = ''
         if self.found and self.print_code:
-            pygame.draw.line(screen, self.color, (5, self.y + 66 + 20 * height), 
-                (295, self.y + 66 + 20 * height), 1)
-            post_text = FONT.render('Почтовый код: ' + self.post_code, 1, self.color)
+            pygame.draw.line(screen, self.color, (5, self.y + 66 + 20 * height),
+                             (295, self.y + 66 + 20 * height), 1)
+            post_text = FONT.render(
+                'Почтовый код: ' + self.post_code, 1, self.color)
             screen.blit(post_text, (self.x + 5, self.y + 68 + 20 * height))
         if self.found and self.print_org:
             if self.print_code:
                 temp = 25
             else:
                 temp = 0
-            pygame.draw.line(screen, self.color, (5, self.y + 66 + temp + 20 * height), 
-                (295, self.y + 66 + temp + 20 * height), 1)
-            org_text = FONT.render('Ближайшая организация: ' + self.org, 1, self.color)
-            screen.blit(org_text, (self.x + 5, self.y + 68 + temp + 20 * height))
+            pygame.draw.line(screen, self.color, (5, self.y + 66 + temp + 20 * height),
+                             (295, self.y + 66 + temp + 20 * height), 1)
+            org = 'Ближайшая организация: ' + self.org
+            for word in org.split():
+                if len(row + word + ' ') > 29:
+                    org_text = FONT.render(row, 1, self.color)
+                    screen.blit(
+                        org_text, (self.x + 5, self.y + 68 + temp + 20 * height))
+                    row = ''
+                    height += 1
+                row += word + ' '
+            if row:
+                org_text = FONT.render(row, 1, self.color)
+                screen.blit(
+                    org_text, (self.x + 5, self.y + 68 + temp + 20 * height))
         pygame.draw.rect(screen, self.color, self.info_rect, 1)
 
     def get_name(self):
@@ -250,26 +238,3 @@ class PygameTextBox:
 
     def is_not_active(self):
         return not self.active
-
-
-'''
-screen = pygame.display.set_mode((512, 412))
-input_box = PygameTextBox(0, 0, 430 + 83, 28)
-clock = pygame.time.Clock()
-FPS = 30
-running = True
-while running:
-    events = pygame.event.get()
-    for event in events:
-        if event.type == pygame.QUIT:
-            running = False
-        input_box.update(events)
-    name = input_box.get_name()
-    if name:
-        print(name)
-    screen.fill((255, 255, 255))
-    input_box.draw(screen)
-    pygame.display.flip()
-    clock.tick(FPS)
-pygame.quit()
-'''
