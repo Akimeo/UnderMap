@@ -151,6 +151,9 @@ clock = pygame.time.Clock()
 FPS = 30
 running = True
 event_check = True
+mouse_tracking = False
+previous_pos = None
+dx = dy = 0
 while running:
     events = pygame.event.get()
     for event in events:
@@ -159,7 +162,12 @@ while running:
         input_box.update(events)
         if input_box.is_not_active():
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 3:
+                if event.button == 1:
+                    down_pos = pygame.mouse.get_pos()
+                    if down_pos[0] > 300:
+                        old_starting_point = starting_point
+                        mouse_tracking = True
+                elif event.button == 3:
                     result = click_search(pygame.mouse.get_pos(), zoom)
                     if result:
                         point = result[0]
@@ -177,6 +185,11 @@ while running:
                     if zoom > 1:
                         zoom -= 1
                         event_check = True
+            elif event.type == pygame.MOUSEBUTTONUP:
+                if event.button == 1:
+                    mouse_tracking = False
+                    dx = dy = 0
+                    event_check = True
             elif event.type == pygame.KEYDOWN:
                 event_check = True
                 if event.key == pygame.K_m:
@@ -212,6 +225,14 @@ while running:
                 elif event.key == pygame.K_RIGHT:
                     starting_point = jesus_christ(
                         starting_point, (512, 0), zoom)
+    if mouse_tracking:
+        current_pos = pygame.mouse.get_pos()
+        current_pos = (max(300, current_pos[0]), current_pos[1])
+        if previous_pos != current_pos:
+            dx, dy = current_pos[0] - down_pos[0], current_pos[1] - down_pos[1]
+            starting_point = jesus_christ(old_starting_point, (-dx, -dy), zoom)
+            previous_pos = current_pos
+            event_check = True
     name = input_box.get_name()
     if name:
         starting_point, zoom, info, post_code, org = search_place(name)

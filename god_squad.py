@@ -24,7 +24,7 @@ def jesus_christ(st_point, new_point, z):
     lonor = min(lonor, 179.99)
     lator = max(lator, -85)
     lator = min(lator, 85)
-    return (lonor, -lator)
+    return [lonor, -lator]
 
 
 def anti_christ(st_point):
@@ -42,4 +42,4 @@ def anti_christ(st_point):
     proj_tmp = ppProj(projection_merc_tmp)
     laloProj = ppProj("+proj=longlat +ellps=WGS84 +datum=WGS84 +no_defs")
     x, y = pptransform(laloProj, proj_tmp, lonor, lator)
-    return (x, -y)
+    return [x, -y]

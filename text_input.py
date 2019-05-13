@@ -159,6 +159,7 @@ class PygameTextBox:
                     self.text = self.lb + self.vis_text + self.rb
 
     def draw(self, screen):
+        pygame.draw.rect(screen, (255, 255, 255), pygame.Rect(self.x, self.y, self.w, 384))
         self.cursor_animation = (self.cursor_animation + 1) % 30
         text = FONT.render(self.vis_text, 1, self.color)
         screen.blit(text, (self.x + 5, self.y + 5))
