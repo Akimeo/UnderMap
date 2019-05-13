@@ -280,4 +280,5 @@ while running:
     clock.tick(FPS)
 pygame.quit()
 os.remove("map.png")
+os.remove("full_map.png")
 process.terminate()
