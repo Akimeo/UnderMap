@@ -45,7 +45,7 @@ def main():
         print(e, sys.argv)
     if points == 'None':
         points = None
-    image = Image.new('RGB', (1536, 1152))
+    image = Image.new('RGB', (1536, 1152), (192, 192, 192))
     pos_list = [[0, 0], [0, 1], [0, 2], [1, 0],
                 [1, 1], [1, 2], [2, 0], [2, 1], [2, 2]]
     with ThreadPoolExecutor(9) as executor:

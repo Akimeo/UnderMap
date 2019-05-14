@@ -38,7 +38,7 @@ def make_map_file(ll, z, l, points):
         os.remove("map.png")
         sys.exit(1)
     try:
-        image = Image.new('RGB', (1536, 1152), (125, 125, 125))
+        image = Image.new('RGB', (1536, 1152), (192, 192, 192))
         img = Image.open(BytesIO(response.content))
         image.paste(img, (512, 384))
         image.save("map.png")
